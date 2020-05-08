@@ -5,6 +5,7 @@ import { getSortedPostsData } from '../lib/posts'
 import Link from 'next/link'
 import Date from '../components/date'
 import { GetStaticProps } from 'next'
+import { Button } from '@material-ui/core'
 
 export default function Home({
   allPostsData
@@ -26,6 +27,14 @@ export default function Home({
           (This is a sample website - you’ll be building a site like this in{' '}
           <a href="https://nextjs.org/learn">our Next.js tutorial</a>.)
         </p>
+      </section>
+      <section>
+        <Link href="/forms/join">
+          {/* <Button color="primary">Join TiDB Community</Button> */}
+          <Button variant="contained" color="secondary">
+            Join TiDB Community
+          </Button>
+        </Link>
       </section>
       <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
         <h2 className={utilStyles.headingLg}>Blog</h2>
