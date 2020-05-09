@@ -10,7 +10,8 @@ import {
   Input,
   InputLabel,
   MenuItem,
-  Select
+  Select,
+  TextField
 } from '@material-ui/core'
 import CheckBoxIcon from '@material-ui/icons/CheckBox'
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
@@ -23,12 +24,12 @@ enum WorkingStatus {
 }
 
 enum JobResearch {
-  CTO,
-  DBA,
-  InfrastructureDevelopmentEngineer,
-  StorageEngineer,
-  DistributedSystemDirection,
-  Other
+  CTO = 'CTO',
+  DBA = 'DBA',
+  InfrastructureDevelopmentEngineer = 'Infrastructure Development Engineer',
+  StorageEngineer = 'Storage Engineer',
+  DistributedSystemDirection = 'Distributed System Direction',
+  Others = 'Others'
 }
 
 export default function Post() {
@@ -43,7 +44,7 @@ export default function Post() {
     [JobResearch.InfrastructureDevelopmentEngineer]: false,
     [JobResearch.StorageEngineer]: false,
     [JobResearch.DistributedSystemDirection]: false,
-    [JobResearch.Other]: false,
+    [JobResearch.Others]: false,
   })
 
   const handleJobResearchChange = (event) => {
@@ -89,11 +90,13 @@ export default function Post() {
 
           {/* working status */}
           <FormControl>
+            <InputLabel htmlFor="my-input">Working Status</InputLabel>
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               value={workingStatus}
               onChange={setWorkingStatusChange}
+              displayEmpty
             >
               <MenuItem value={WorkingStatus.Student}>Student</MenuItem>
               <MenuItem value={WorkingStatus.Working}>Working</MenuItem>
@@ -117,29 +120,36 @@ export default function Post() {
 
           {/* Job or Research Direction */}
           <FormGroup row>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checkedIcon={<CheckBoxIcon fontSize="small" />}
-                  checked={jobResearch[JobResearch.CTO]}
-                  onChange={handleJobResearchChange}
-                  name="checkedB"
-                  color="primary"
+            {
+              Object.keys(JobResearch).map((key) => {
+                const value = JobResearch[key]
+                return <FormControlLabel
+                  key={key}
+                  control={
+                    <Checkbox
+                    checkedIcon={<CheckBoxIcon fontSize="small" />}
+                    checked={jobResearch[value]}
+                    onChange={handleJobResearchChange}
+                    name={value}
+                    />
+                  }
+                  label={value}
                 />
-              }
-              label="Primary"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
-                  checkedIcon={<CheckBoxIcon fontSize="small" />}
-                  name="checkedI"
-                />
-              }
-              label="Custom size"
-            />
+              })
+            }
           </FormGroup>
+
+          {/* Shipping Address */}
+          <FormControl>
+            <TextField
+              id="outlined-multiline-static"
+              label="Shipping Address"
+              multiline
+              rows={4}
+              variant="outlined"
+            />
+            <FormHelperText id="my-helper-text">Please fill in the accurate address for us to send gifts.</FormHelperText>
+          </FormControl>
 
         </FormGroup>
       </section>
