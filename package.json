@@ -5,21 +5,25 @@
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 8080",
     "build": "next build",
-    "start": "next start"
+    "start": "next start -H 0.0.0.0 -p 8080"
   },
   "dependencies": {
     "@material-ui/core": "^4.9.13",
     "@material-ui/icons": "^4.9.1",
+    "axios": "^0.19.2",
     "cookie": "^0.4.1",
     "crypto-random-string": "^3.2.0",
     "date-fns": "^2.11.1",
     "gray-matter": "^4.0.2",
+    "mysql2": "^2.1.0",
     "next": "9.3.5",
     "node-fetch": "^2.6.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "remark": "^12.0.0",
-    "remark-html": "^11.0.1"
+    "remark-html": "^11.0.1",
+    "sequelize": "^5.21.8",
+    "url-join": "^4.0.1"
   },
   "devDependencies": {
     "@types/node": "^13.13.5",

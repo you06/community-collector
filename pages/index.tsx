@@ -1,22 +1,25 @@
 import Head from 'next/head'
+import { GetServerSideProps } from 'next'
 import Layout, { siteTitle } from '../components/layout'
 import utilStyles from '../styles/utils.module.css'
 import Link from 'next/link'
-import { GetStaticProps, GetServerSideProps } from 'next'
 import { Button } from '@material-ui/core'
 import Grid, { GridSpacing } from '@material-ui/core/Grid'
 import { GithubUser, authURL, getTokenByRaw } from '../lib/github'
+import { hasUser } from '../lib/orm/user'
 
 
 export default function Home({
   githubAuth,
   has_user,
+  has_join,
   user
 }: {
   githubAuth: {
     authURL: string,
   },
   has_user: boolean,
+  has_join: boolean,
   user?: GithubUser
 }) {
   return (
@@ -31,9 +34,14 @@ export default function Home({
             Login in to join TiDB Community.
           </p>
           :
-          <p>
-            Welcome to TiDB Community.
-          </p>
+          !has_join?
+            <p>
+              Hi {user.login}, welcome to TiDB community.
+            </p>
+            :
+            <p>
+              Hi {user.login}, you are in TiDB community.
+            </p>
         }
       </section>
       <Grid container justify="center" spacing={2}>
@@ -49,15 +57,16 @@ export default function Home({
             </a>
           </Grid>
         }
-
-        <Grid item>
-          <Link href="/forms/join">
-            {/* <Button color="primary">Join TiDB Community</Button> */}
-            <Button variant="contained" color="secondary">
-              Join TiDB Community
-            </Button>
-          </Link>
-        </Grid>
+        {has_user &&
+          <Grid item>
+            <Link href="/forms/join">
+              {/* <Button color="primary">Join TiDB Community</Button> */}
+              <Button variant="contained" color="secondary">
+                Join TiDB Community
+              </Button>
+            </Link>
+          </Grid>
+        }
       </Grid>
     </Layout>
   )
@@ -68,11 +77,16 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const {
     has_user,
     user
-  } = await getTokenByRaw(req.headers.cookie)
+  } = await getTokenByRaw(req.headers.cookie || '')
+  let has_join = false
+  if (has_user || user) {
+    has_join = await hasUser(user.login)
+  }
   return {
     props: {
       githubAuth,
       has_user,
+      has_join,
       user: user || null
     }
   }

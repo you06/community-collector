@@ -74,11 +74,13 @@ async function writeToken(token: RawToken) :Promise<{user: string, cookie: any}>
   const cookieStr = cryptoRandomString({length: 10})
   const cookieSerialized = cookie.serialize(COOKIE_NAME, cookieStr, {
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    // secure: process.env.NODE_ENV === 'production',
+    secure: false,
     maxAge: 72576000,
     httpOnly: true,
     path: '/',
   })
+  console.log(cookieStr, user.login)
   sessions[cookieStr] = user.login
   return {
     user: user.login,
@@ -112,7 +114,7 @@ async function getToken(cookie: {[key: string]: string}) : Promise<{has_user: bo
 }
 
 async function getTokenByRaw(rawCookie: string) : Promise<{has_user: boolean, token?: Token, user?: GithubUser}> {
-  const cookies = cookie.parse(rawCookie)
+  const cookies = cookie.parse(rawCookie) as {[key: string]: string}
   return await getToken(cookies)
 }
 
