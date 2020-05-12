@@ -11,25 +11,25 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     })
   }
 
-  // const {
-  //   has_user,
-  //   user
-  // } = await getToken(req.cookies)
+  const {
+    has_user,
+    user
+  } = await getToken(req.cookies)
 
-  // if (!has_user) {
-  //   res.status(500).json({
-  //     status: 500,
-  //     text: 'Invalid user'
-  //   })
-  //   res.end()
-  //   return
-  // }
+  if (!has_user) {
+    res.status(500).json({
+      status: 500,
+      text: 'Invalid user'
+    })
+    res.end()
+    return
+  }
 
   console.log(req.body)
   const body = req.body
 
   const u: User = {
-    github: 'you06',
+    github: user.login,
     name: body.name || null,
     wechat: body.wechat || null,
     tel: body.tel || null,
