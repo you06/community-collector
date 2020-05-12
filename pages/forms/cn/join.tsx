@@ -2,14 +2,14 @@ import React from 'react'
 import { GetServerSideProps } from 'next'
 import axios from 'axios'
 import urljoin from 'url-join'
-import Layout from '../../components/layout'
-import { GithubUser, getTokenByRaw } from '../../lib/github'
+import Layout from '../../../components/layout'
+import { GithubUser, getTokenByRaw } from '../../../lib/github'
 import { useRouter } from 'next/router'
 import {
   BASE_URL,
   WorkingStatus,
   JobResearch
-} from '../../lib/const'
+} from '../../../lib/const'
 import Head from 'next/head'
 import {
   Button,

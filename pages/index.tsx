@@ -1,34 +1,50 @@
+import React from 'react'
 import Head from 'next/head'
 import { GetServerSideProps } from 'next'
+import clsx from 'clsx'
+import Link from 'next/link'
+import urljoin from 'url-join'
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core'
+import Grid, { GridSpacing } from '@material-ui/core/Grid'
+import { withStyles, WithStyles } from '@material-ui/core/styles'
 import Layout, { siteTitle } from '../components/layout'
 import utilStyles from '../styles/utils.module.css'
-import Link from 'next/link'
-import { Button } from '@material-ui/core'
-import Grid, { GridSpacing } from '@material-ui/core/Grid'
 import { GithubUser, authURL, getTokenByRaw } from '../lib/github'
 import { hasUser } from '../lib/orm/user'
+import { BASE_URL } from '../lib/const'
 
-
-export default function Home({
-  githubAuth,
-  has_user,
-  has_join,
-  user
-}: {
+interface Props extends WithStyles<typeof styles> {
+  children?: React.ReactNode;
+  className?: string;
   githubAuth: {
     authURL: string,
-  },
-  has_user: boolean,
-  has_join: boolean,
-  user?: GithubUser
-}) {
+  };
+  has_user: boolean;
+  has_join: boolean;
+  user?: GithubUser;
+}
+
+const styles = {
+  root: {
+    'padding-bottom': '24px'
+  }
+}
+
+export default withStyles(styles)(Home)
+
+function Home(props: Props) {
+  const { classes, className, githubAuth, has_user, has_join, user } = props
+  const [open, setOpen] = React.useState(false)
+  const handleClickOpen = () => setOpen(true)
+  const handleClose = () => setOpen(false)
+
   return (
     <Layout home>
       <Head>
         <title>{siteTitle}</title>
       </Head>
       <section className={utilStyles.headingMd}>
-        <p>In solitude, at least we are not alone.</p>
+        <p>In solitude, where we are least alone.</p>
         {!has_user ?
           <p>
             Login in to join TiDB Community.
@@ -47,27 +63,46 @@ export default function Home({
       <Grid container justify="center" spacing={2}>
         {!has_user &&
           <Grid item>
-            <a href={githubAuth.authURL}>
-              <Button
-                variant="contained"
-                color="secondary"
-              >
-                Auth by GitHub
-              </Button>
-            </a>
+            <Button
+              variant="contained"
+              color="secondary"
+              href={githubAuth.authURL}
+            >
+              Auth by GitHub
+            </Button>
           </Grid>
         }
-        {has_user &&
+        {has_user || true &&
           <Grid item>
-            <Link href="/forms/join">
-              {/* <Button color="primary">Join TiDB Community</Button> */}
-              <Button variant="contained" color="secondary">
-                Join TiDB Community
-              </Button>
-            </Link>
+            {/* <Button color="primary">Join TiDB Community</Button> */}
+            <Button variant="contained" color="secondary" onClick={handleClickOpen}>
+              Join TiDB Community
+            </Button>
           </Grid>
         }
       </Grid>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="xl"
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogContent className={clsx(classes.root, className)}>
+          <Grid container direction="column" spacing={2}>
+            <Grid item xs={12}>
+              <Button fullWidth variant="contained" color="primary" href={urljoin(BASE_URL, '/forms/cn/join')}>
+                中国大陆
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Button fullWidth variant="contained" color="primary" href={urljoin(BASE_URL, '/forms/en/join')}>
+                The rest of the world
+              </Button>
+            </Grid>
+          </Grid>
+        </DialogContent>
+      </Dialog>
     </Layout>
   )
 }
