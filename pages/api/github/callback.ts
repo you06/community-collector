@@ -27,7 +27,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       const parsed = parseParameters(raw) as RawToken
       const {cookie: cookieSerialized} = await writeToken(parsed)
       res.setHeader('Set-Cookie', cookieSerialized)
-      res.writeHead(301, {
+      res.writeHead(307, {
         Location: process.env.BASE_URL || '/'
       })
       res.end()

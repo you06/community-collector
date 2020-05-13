@@ -33,7 +33,10 @@ const styles = {
 export default withStyles(styles)(Home)
 
 function Home(props: Props) {
-  const { classes, className, githubAuth, has_user, has_join, user } = props
+  const { githubAuth, has_user, has_join, user, classes, className } = props
+  
+  console.log(classes, className)
+
   const [open, setOpen] = React.useState(false)
   const handleClickOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -72,7 +75,7 @@ function Home(props: Props) {
             </Button>
           </Grid>
         }
-        {has_user || true &&
+        {has_user && !has_join &&
           <Grid item>
             {/* <Button color="primary">Join TiDB Community</Button> */}
             <Button variant="contained" color="secondary" onClick={handleClickOpen}>
@@ -112,7 +115,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const {
     has_user,
     user
-  } = await getTokenByRaw(req.headers.cookie || '')
+  } = await getTokenByRaw(req.headers.cookie)
   let has_join = false
   if (has_user || user) {
     has_join = await hasUser(user.login)

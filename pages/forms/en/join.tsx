@@ -108,7 +108,7 @@ export default function Join({
           {/* name */}
           <FormControl>
             <InputLabel htmlFor="my-input">GitHub ID</InputLabel>
-            <Input id="my-input" aria-describedby="my-helper-text" disabled={true} value={user ? user.login : ''} />
+            <Input id="my-input" aria-describedby="my-helper-text" disabled={true} value={user !== null ? user.login : ''} />
           </FormControl>
           {/* name */}
           <FormControl>
@@ -227,7 +227,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   } = await getTokenByRaw(req.headers.cookie)
 
   if (!has_user) {
-    res.writeHead(301, {
+    res.writeHead(307, {
       Location: process.env.BASE_URL || '/'
     })
     res.end()

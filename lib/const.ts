@@ -16,3 +16,19 @@ export enum JobResearch {
   DistributedSystemDirection = 'Distributed System Direction',
   Others = 'Others'
 }
+
+export const JobResearchOptions = {
+  [WorkingStatus.Unknown]: Object.keys(JobResearch),
+  [WorkingStatus.Student]: keys(JobResearch, [
+    JobResearch.InfrastructureDevelopmentEngineer,
+    JobResearch.StorageEngineer,
+    JobResearch.DistributedSystemDirection,
+    JobResearch.Others
+  ]),
+  [WorkingStatus.Working]: Object.keys(JobResearch),
+  [WorkingStatus.Others]: Object.keys(JobResearch)
+}
+
+function keys<T>(t: {[key: string]: T}, vs: T[]): string[] {
+  return Object.keys(t).filter(k => vs.includes(t[k]))
+}

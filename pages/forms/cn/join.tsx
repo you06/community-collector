@@ -2,13 +2,12 @@ import React from 'react'
 import { GetServerSideProps } from 'next'
 import axios from 'axios'
 import urljoin from 'url-join'
-import Layout from '../../../components/layout'
-import { GithubUser, getTokenByRaw } from '../../../lib/github'
 import { useRouter } from 'next/router'
 import {
   BASE_URL,
   WorkingStatus,
-  JobResearch
+  JobResearch,
+  JobResearchOptions
 } from '../../../lib/const'
 import Head from 'next/head'
 import {
@@ -17,14 +16,24 @@ import {
   FormGroup,
   FormControl,
   FormControlLabel,
+  FormLabel,
   FormHelperText,
-  Input,
   InputLabel,
   MenuItem,
   Select,
   TextField
 } from '@material-ui/core'
 import CheckBoxIcon from '@material-ui/icons/CheckBox'
+import { makeStyles } from '@material-ui/core/styles'
+import clsx from 'clsx'
+import Layout from '../../../components/layout'
+import { GithubUser, getTokenByRaw } from '../../../lib/github'
+
+const useStyles = makeStyles({
+  root: {
+    'margin-top': '24px'
+  }
+})
 
 export default function Join({
   base_url,
@@ -33,10 +42,14 @@ export default function Join({
   base_url: string,
   user?: GithubUser
 }) {
+  const classes = useStyles()
+
   const router = useRouter()
   const [workingStatus, setWorkingStatus] = React.useState(WorkingStatus.Unknown)
+  const [workingStatusErr, setWorkingStatusErr] = React.useState(false)
   const setWorkingStatusChange = (event) => {
     setWorkingStatus(event.target.value)
+    setWorkingStatusErr(event.target.value === WorkingStatus.Unknown)
   }
 
   const [jobResearch, setjobResearch] = React.useState({
@@ -47,19 +60,33 @@ export default function Join({
     [JobResearch.DistributedSystemDirection]: false,
     [JobResearch.Others]: false,
   })
+  const [otherJobResearch, setOtherjobResearch] = React.useState('')
+  const handleChangeOtherjobResearch = (event) =>  setOtherjobResearch(event.target.value)
 
   const handleJobResearchChange = (event) => {
     setjobResearch({ ...jobResearch, [event.target.name]: event.target.checked })
   }
 
   const [name, changeName] = React.useState('')
-  const handleChangeName = (event) => changeName(event.target.value)
+  const [nameErr, changeNameErr] = React.useState(false)
+  const handleChangeName = (event) => {
+    changeName(event.target.value)
+    changeNameErr(event.target.value === '')
+  }
 
   const [wechat, changeWechat] = React.useState('')
-  const handleChangeWechat = (event) => changeWechat(event.target.value)
+  const [wechatErr, changeWechatErr] = React.useState(false)
+  const handleChangeWechat = (event) => {
+    changeWechat(event.target.value)
+    changeWechatErr(event.target.value === '')
+  }
 
   const [tel, changeTel] = React.useState('')
-  const handleChangeTel = (event) => changeTel(event.target.value)
+  const [telErr, changeTelErr] = React.useState(false)
+  const handleChangeTel = (event) => {
+    changeTel(event.target.value)
+    changeTelErr(event.target.value === '')
+  }
 
   const [email, changeEmail] = React.useState('')
   const handleChangeEmail = (event) => changeEmail(event.target.value)
@@ -71,9 +98,28 @@ export default function Join({
   const handleChangeWorkingInstitution = (event) => changeWorkingInstitution(event.target.value)
 
   const [address, changeAddress] = React.useState('')
-  const handleChangeAddress = (event) => changeAddress(event.target.value)
+  const [addressErr, changeAddressErr] = React.useState(false)
+  const handleChangeAddress = (event) => {
+    changeAddress(event.target.value)
+    changeAddressErr(event.target.value === '')
+  }
 
   function submit() {
+    const validates = [
+      {valid: workingStatus !== WorkingStatus.Unknown, fn: setWorkingStatusErr},
+      {valid: name !== '', fn: changeNameErr},
+      {valid: wechat !== '', fn: changeWechatErr},
+      {valid: tel !== '', fn: changeTelErr},
+      {valid: address !== '', fn: changeAddressErr}
+    ]
+    const valid = validates.map(validate => {
+      if (!validate.valid) {
+        validate.fn(true)
+      }
+      return validate.valid
+    }).reduce((a, b) => a && b)
+    if (!valid) return
+
     const data = {
       name,
       wechat,
@@ -106,101 +152,89 @@ export default function Join({
       <section>
         <FormGroup>
           {/* name */}
-          <FormControl>
-            <InputLabel htmlFor="my-input">GitHub ID</InputLabel>
-            <Input id="my-input" aria-describedby="my-helper-text" disabled={true} value={user ? user.login : ''} />
-          </FormControl>
+          <TextField disabled label="GitHub" value={user ? user.login : ''} />
           {/* name */}
-          <FormControl>
-            <InputLabel htmlFor="my-input">Name</InputLabel>
-            <Input id="my-input" aria-describedby="my-helper-text" value={name} onChange={handleChangeName} />
-            <FormHelperText id="my-helper-text">Your realname or nickname.</FormHelperText>
-          </FormControl>
+          <TextField required error={nameErr} label="姓名" value={name} onChange={handleChangeName} />
           {/* WeChat ID */}
-          <FormControl>
-            <InputLabel htmlFor="my-input">WeChat ID</InputLabel>
-            <Input id="my-input" aria-describedby="my-helper-text" value={wechat} onChange={handleChangeWechat} />
-            <FormHelperText id="my-helper-text">Optional.</FormHelperText>
-          </FormControl>
+          <TextField required error={wechatErr} label="微信 ID" value={wechat} onChange={handleChangeWechat} />
           {/* Phone Number */}
-          <FormControl>
-            <InputLabel htmlFor="my-input">Phone Number</InputLabel>
-            <Input id="my-input" aria-describedby="my-helper-text" value={tel} onChange={handleChangeTel} />
-            {/* <FormHelperText id="my-helper-text">Optional, WeChat ID.</FormHelperText> */}
-          </FormControl>
+          <TextField required error={telErr} label="手机号码" value={tel} onChange={handleChangeTel} />
           {/* Email Address */}
-          <FormControl>
-            <InputLabel htmlFor="my-input">Email Address</InputLabel>
-            <Input id="my-input" aria-describedby="my-helper-text" value={email} onChange={handleChangeEmail} />
-            <FormHelperText id="my-helper-text">We'll never share your email.</FormHelperText>
-          </FormControl>
+          <TextField label="邮箱" helperText="我们不会泄露你的邮箱" value={email} onChange={handleChangeEmail} />
 
           {/* working status */}
           <FormControl>
-            <InputLabel htmlFor="my-input">Working Status</InputLabel>
+            <InputLabel htmlFor="my-input">工作状态</InputLabel>
             <Select
+              required
+              error={workingStatusErr}
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               value={workingStatus}
               onChange={setWorkingStatusChange}
               displayEmpty
             >
-              <MenuItem value={WorkingStatus.Student}>Student</MenuItem>
-              <MenuItem value={WorkingStatus.Working}>Working</MenuItem>
-              <MenuItem value={WorkingStatus.Others}>Others</MenuItem>
+              <MenuItem value={WorkingStatus.Student}>学生</MenuItem>
+              <MenuItem value={WorkingStatus.Working}>工作中</MenuItem>
+              <MenuItem value={WorkingStatus.Others}>其他</MenuItem>
             </Select>
           </FormControl>
           {workingStatus === WorkingStatus.Others &&
-            <FormControl>
-              <InputLabel htmlFor="my-input">Working Status</InputLabel>
-              <Input id="my-input" aria-describedby="my-helper-text" value={otherStatus} onChange={handleChangeOtherStatus} />
-            </FormControl>
+            <TextField label="工作状态" value={otherStatus} onChange={handleChangeOtherStatus} />
           }
 
           {/* Company or School */}
           {[WorkingStatus.Student, WorkingStatus.Working].includes(workingStatus) &&
-            <FormControl>
-              <InputLabel htmlFor="my-input">Your {workingStatus2institution(workingStatus)} Name</InputLabel>
-              <Input id="my-input" aria-describedby="my-helper-text" value={workingInstitution} onChange={handleChangeWorkingInstitution} />
-            </FormControl>
+            <TextField label={`${workingStatus2institution(workingStatus)}名称`} value={workingInstitution} onChange={handleChangeWorkingInstitution} />
           }
 
-          {/* Job or Research Direction */}
-          <FormGroup row>
-            {
-              Object.keys(JobResearch).map((key) => {
-                const value = JobResearch[key]
-                return <FormControlLabel
-                  key={key}
-                  control={
-                    <Checkbox
-                      checkedIcon={<CheckBoxIcon fontSize="small" />}
-                      checked={jobResearch[value]}
-                      onChange={handleJobResearchChange}
-                      name={value}
-                    />
-                  }
-                  label={value}
-                />
-              })
+          <FormControl className={classes.root}>
+            <FormLabel>研究方向</FormLabel>
+            {/* Job or Research Direction */}
+            <FormGroup row>
+              {
+                Object.keys(JobResearch).filter(key => {
+                  return JobResearchOptions[workingStatus].includes(key)
+                }).map(key => {
+                  const value = JobResearch[key]
+                  return <FormControlLabel
+                    key={key}
+                    control={
+                      <Checkbox
+                        checkedIcon={<CheckBoxIcon fontSize="small" />}
+                        checked={jobResearch[value]}
+                        onChange={handleJobResearchChange}
+                        name={value}
+                      />
+                    }
+                    label={value}
+                  />
+                })
+              }
+            </FormGroup>
+            {/* Other Job or Research Direction */}
+            {jobResearch[JobResearch.Others] &&
+              <TextField label="其他研究方向" value={otherJobResearch} onChange={handleChangeOtherjobResearch} />
             }
-          </FormGroup>
+          </FormControl>
 
           {/* Shipping Address */}
           <FormControl>
             <TextField
+              required
+              error={addressErr}
               id="outlined-multiline-static"
-              label="Shipping Address"
+              label="收货地址"
               multiline
               rows={4}
               variant="outlined"
               value={address}
               onChange={handleChangeAddress}
             />
-            <FormHelperText id="my-helper-text">Please fill in the accurate address for us to send gifts.</FormHelperText>
+            <FormHelperText id="my-helper-text">请填写准确的地址方便我们寄送周边</FormHelperText>
           </FormControl>
           <Button variant="contained" color="primary" onClick={submit}>
-            Submit
+            提交
           </Button>
         </FormGroup>
       </section>
@@ -211,10 +245,10 @@ export default function Join({
 function workingStatus2institution(status: WorkingStatus): string {
   switch (status) {
     case WorkingStatus.Student: {
-      return 'College'
+      return '学校'
     }
     case WorkingStatus.Working: {
-      return 'Company'
+      return '公司'
     }
   }
   return ''
@@ -227,8 +261,8 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   } = await getTokenByRaw(req.headers.cookie)
 
   if (!has_user) {
-    res.writeHead(301, {
-      Location: process.env.BASE_URL || '/'
+    res.writeHead(307, {
+      Location: BASE_URL
     })
     res.end()
     return

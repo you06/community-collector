@@ -89,6 +89,17 @@ async function writeToken(token: RawToken) :Promise<{user: string, cookie: any}>
 }
 
 async function getToken(cookie: {[key: string]: string}) : Promise<{has_user: boolean, token?: Token, user?: GithubUser}> {
+  // return {
+  //   has_user: true,
+  //   token: null,
+  //   user: {
+  //     login: 'you06',
+  //     id: 123,
+  //     avatar_url: 'string',
+  //     type: 'string'
+  //   }
+  // }
+
   if (!cookie[COOKIE_NAME]) {
     return {
       has_user: false
@@ -113,8 +124,8 @@ async function getToken(cookie: {[key: string]: string}) : Promise<{has_user: bo
   }
 }
 
-async function getTokenByRaw(rawCookie: string) : Promise<{has_user: boolean, token?: Token, user?: GithubUser}> {
-  const cookies = cookie.parse(rawCookie) as {[key: string]: string}
+async function getTokenByRaw(rawCookie: string | undefined) : Promise<{has_user: boolean, token?: Token, user?: GithubUser}> {
+  const cookies = cookie.parse(rawCookie || '') as {[key: string]: string}
   return await getToken(cookies)
 }
 
