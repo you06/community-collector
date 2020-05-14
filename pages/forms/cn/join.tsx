@@ -30,19 +30,18 @@ import { GithubUser, getTokenByRaw } from '../../../lib/github'
 
 const useStyles = makeStyles({
   root: {
-    'margin-top': '24px'
+    'margin-top': '24px',
+    'margin-bottom': '24px'
   }
 })
 
-type JoinProps = {
-  base_url: string,
-  has_user: boolean,
-  // user?: GithubUser
-}
-
 export default function Join({
-  base_url
-}: JoinProps) {
+  base_url,
+  user
+}: {
+  base_url: boolean,
+  user?: GithubUser
+}) {
   // console.log(base_url, user)
   const classes = useStyles()
 
@@ -60,7 +59,8 @@ export default function Join({
     [JobResearch.InfrastructureDevelopmentEngineer]: false,
     [JobResearch.StorageEngineer]: false,
     [JobResearch.DistributedSystemDirection]: false,
-    [JobResearch.Others]: false,
+    [JobResearch.BigData]: false,
+    [JobResearch.Others]: false
   })
   const [otherJobResearch, setOtherjobResearch] = React.useState('')
   const handleChangeOtherjobResearch = (event) =>  setOtherjobResearch(event.target.value)
@@ -166,7 +166,7 @@ export default function Join({
       <section>
         <FormGroup>
           {/* name */}
-          <TextField disabled label="GitHub" value="{user ? user.login : ''}" />
+          <TextField disabled label="GitHub" value={user ? user.login : ''} />
           {/* name */}
           <TextField required error={nameErr} label="姓名" value={name} onChange={handleChangeName} />
           {/* WeChat ID */}
@@ -269,7 +269,7 @@ function workingStatus2institution(status: WorkingStatus): string {
 }
 
 function jobResearch2cn(j: JobResearch): string {
-  const dict = {
+  return {
     [JobResearch.CTO]: 'CTO',
     [JobResearch.DBA]: 'DBA',
     [JobResearch.InfrastructureDevelopmentEngineer]: '基础架构开发工程师',
@@ -277,46 +277,33 @@ function jobResearch2cn(j: JobResearch): string {
     [JobResearch.DistributedSystemDirection]: '分布式系统方向',
     [JobResearch.BigData]: '大数据方向',
     [JobResearch.Others]: '其他'
-  }
-  if (dict[j]) return dict[j]
-
-  return '!!!!'
+  }[j]
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  // const props: JoinProps = {
-  //   base_url: BASE_URL,
-  //   has_user: false,
-  //   // user: null,
-  // }
+  const props = {
+    base_url: BASE_URL,
+    user: null
+  }
 
-  // const {
-  //   has_user,
-  //   user
-  // } = await getTokenByRaw(req.headers.cookie)
+  const {
+    has_user,
+    user
+  } = await getTokenByRaw(req.headers.cookie)
 
-  // props.has_user = has_user
-
-  // // if (!has_user) {
-  // //   res.writeHead(307, {
-  // //     Location: BASE_URL
-  // //   })
-  // //   res.end()
-  // //   return {
-  // //     props
-  // //   }
-  // // }
-  // // props.user = user as GithubUser
-
-  // console.log(has_user, user)
-
-  // return {
-  //   props
-  // }
-  return {
-    props: {
-      base_url: '',
-      has_user: true
+  if (!has_user) {
+    res.writeHead(307, {
+      Location: BASE_URL
+    })
+    res.end()
+    return {
+      props
     }
+  }
+
+  props.user = user
+
+  return {
+    props
   }
 }

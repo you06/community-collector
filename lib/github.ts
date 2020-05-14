@@ -100,10 +100,10 @@ async function writeToken(token: RawToken) :Promise<{success: boolean, user?: Gi
 }
 
 async function getToken(cookie: {[key: string]: string}) : Promise<{has_user: boolean, token?: Token, user?: GithubUser}> {
-  const token = {
-    created_at: new Date(),
-    token: 'string'
-  }
+  // const token = {
+  //   created_at: new Date(),
+  //   token: 'string'
+  // }
   // return {
   //   has_user: true,
   //   token,
@@ -134,26 +134,12 @@ async function getToken(cookie: {[key: string]: string}) : Promise<{has_user: bo
     return res
   }
 
-  // if (user && users[user]) {
-  //   console.log('got user', user, users[user])
-  //   // res.has_user = true
-  //   // res.token = users[user].token
-  //   // res.user = users[user].user
-  //   // return res
-  // }
-
   // TODO: check token validation
   // by default, the token don't have to expire unless the user revoke it manually
-  return {
-    has_user: true,
-    token,
-    user: {
-      login: 'you06',
-      id: 123,
-      avatar_url: 'string',
-      type: 'string'
-    }
-  } as {has_user: boolean, token?: Token, user?: GithubUser}
+  res.has_user = true
+  res.token = user.token
+  res.user = user.user
+  return res
 }
 
 async function getTokenByRaw(rawCookie: string | undefined | null) : Promise<{has_user: boolean, token?: Token, user?: GithubUser}> {
