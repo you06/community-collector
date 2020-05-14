@@ -37,16 +37,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     working_status: body.workingStatus || null,
     institution_name: body.workingInstitution || null,
     location: body.address || null,
-    job_research: []
-  }
-
-  if (body.jobResearch) {
-    for (const k in JobResearch) {
-      const v = JobResearch[k]
-      if (body.jobResearch[v] === true) {
-        u.job_research.push(v)
-      }
-    }
+    job_research: body.jobResearch || []
   }
 
   await createUser(u)

@@ -1,41 +1,36 @@
 import React from 'react'
 import Head from 'next/head'
 import { GetServerSideProps } from 'next'
-import clsx from 'clsx'
-import Link from 'next/link'
 import urljoin from 'url-join'
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core'
 import Grid, { GridSpacing } from '@material-ui/core/Grid'
-import { withStyles, WithStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import Layout, { siteTitle } from '../components/layout'
 import utilStyles from '../styles/utils.module.css'
 import { GithubUser, authURL, getTokenByRaw } from '../lib/github'
 import { hasUser } from '../lib/orm/user'
 import { BASE_URL } from '../lib/const'
 
-interface Props extends WithStyles<typeof styles> {
-  children?: React.ReactNode;
-  className?: string;
-  githubAuth: {
-    authURL: string,
-  };
-  has_user: boolean;
-  has_join: boolean;
-  user?: GithubUser;
-}
-
-const styles = {
+const useStyles = makeStyles({
   root: {
     'padding-bottom': '24px'
   }
-}
+})
 
-export default withStyles(styles)(Home)
-
-function Home(props: Props) {
-  const { githubAuth, has_user, has_join, user, classes, className } = props
-  
-  console.log(classes, className)
+export default function Home({
+  githubAuth,
+  has_user,
+  has_join,
+  user
+}: {
+  githubAuth: {
+    authURL: string,
+  },
+  has_user: boolean,
+  has_join: boolean,
+  user?: GithubUser
+}) {
+  const classes = useStyles()
 
   const [open, setOpen] = React.useState(false)
   const handleClickOpen = () => setOpen(true)
@@ -64,7 +59,7 @@ function Home(props: Props) {
         }
       </section>
       <Grid container justify="center" spacing={2}>
-        {!has_user &&
+        {(true || !has_user) &&
           <Grid item>
             <Button
               variant="contained"
@@ -91,7 +86,7 @@ function Home(props: Props) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogContent className={clsx(classes.root, className)}>
+        <DialogContent className={classes.root}>
           <Grid container direction="column" spacing={2}>
             <Grid item xs={12}>
               <Button fullWidth variant="contained" color="primary" href={urljoin(BASE_URL, '/forms/cn/join')}>

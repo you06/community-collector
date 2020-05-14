@@ -14,6 +14,7 @@ export enum JobResearch {
   InfrastructureDevelopmentEngineer = 'Infrastructure Development Engineer',
   StorageEngineer = 'Storage Engineer',
   DistributedSystemDirection = 'Distributed System Direction',
+  BigData = 'Big Data',
   Others = 'Others'
 }
 
@@ -23,6 +24,7 @@ export const JobResearchOptions = {
     JobResearch.InfrastructureDevelopmentEngineer,
     JobResearch.StorageEngineer,
     JobResearch.DistributedSystemDirection,
+    JobResearch.BigData,
     JobResearch.Others
   ]),
   [WorkingStatus.Working]: Object.keys(JobResearch),

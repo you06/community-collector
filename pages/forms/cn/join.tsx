@@ -25,7 +25,6 @@ import {
 } from '@material-ui/core'
 import CheckBoxIcon from '@material-ui/icons/CheckBox'
 import { makeStyles } from '@material-ui/core/styles'
-import clsx from 'clsx'
 import Layout from '../../../components/layout'
 import { GithubUser, getTokenByRaw } from '../../../lib/github'
 
@@ -35,13 +34,16 @@ const useStyles = makeStyles({
   }
 })
 
-export default function Join({
-  base_url,
-  user
-}: {
+type JoinProps = {
   base_url: string,
-  user?: GithubUser
-}) {
+  has_user: boolean,
+  // user?: GithubUser
+}
+
+export default function Join({
+  base_url
+}: JoinProps) {
+  // console.log(base_url, user)
   const classes = useStyles()
 
   const router = useRouter()
@@ -120,6 +122,18 @@ export default function Join({
     }).reduce((a, b) => a && b)
     if (!valid) return
 
+    const jobResearchArr = []
+    for (const k in JobResearch) {
+      const v = JobResearch[k]
+      if (jobResearch[v] === true) {
+        if (k !== JobResearch.Others) {
+          jobResearchArr.push(v)
+        } else {
+          if (otherJobResearch !== '') jobResearchArr.push(otherJobResearch)
+        }
+      }
+    }
+
     const data = {
       name,
       wechat,
@@ -128,7 +142,7 @@ export default function Join({
       otherStatus,
       workingInstitution,
       address,
-      jobResearch,
+      jobResearch: jobResearchArr,
       workingStatus
     }
     console.log(data)
@@ -152,7 +166,7 @@ export default function Join({
       <section>
         <FormGroup>
           {/* name */}
-          <TextField disabled label="GitHub" value={user ? user.login : ''} />
+          <TextField disabled label="GitHub" value="{user ? user.login : ''}" />
           {/* name */}
           <TextField required error={nameErr} label="姓名" value={name} onChange={handleChangeName} />
           {/* WeChat ID */}
@@ -207,7 +221,7 @@ export default function Join({
                         name={value}
                       />
                     }
-                    label={value}
+                    label={jobResearch2cn(value)}
                   />
                 })
               }
@@ -254,24 +268,55 @@ function workingStatus2institution(status: WorkingStatus): string {
   return ''
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const {
-    has_user,
-    user
-  } = await getTokenByRaw(req.headers.cookie)
-
-  if (!has_user) {
-    res.writeHead(307, {
-      Location: BASE_URL
-    })
-    res.end()
-    return
+function jobResearch2cn(j: JobResearch): string {
+  const dict = {
+    [JobResearch.CTO]: 'CTO',
+    [JobResearch.DBA]: 'DBA',
+    [JobResearch.InfrastructureDevelopmentEngineer]: '基础架构开发工程师',
+    [JobResearch.StorageEngineer]: '存储工程师',
+    [JobResearch.DistributedSystemDirection]: '分布式系统方向',
+    [JobResearch.BigData]: '大数据方向',
+    [JobResearch.Others]: '其他'
   }
+  if (dict[j]) return dict[j]
 
+  return '!!!!'
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  // const props: JoinProps = {
+  //   base_url: BASE_URL,
+  //   has_user: false,
+  //   // user: null,
+  // }
+
+  // const {
+  //   has_user,
+  //   user
+  // } = await getTokenByRaw(req.headers.cookie)
+
+  // props.has_user = has_user
+
+  // // if (!has_user) {
+  // //   res.writeHead(307, {
+  // //     Location: BASE_URL
+  // //   })
+  // //   res.end()
+  // //   return {
+  // //     props
+  // //   }
+  // // }
+  // // props.user = user as GithubUser
+
+  // console.log(has_user, user)
+
+  // return {
+  //   props
+  // }
   return {
     props: {
-      base_url: BASE_URL,
-      user: user || null,
+      base_url: '',
+      has_user: true
     }
   }
 }
